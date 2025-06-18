@@ -1,0 +1,128 @@
+<div class="todo-container" [@slideIn]>
+  <header class="todo-header">
+    <h1>✨ To-Do List</h1>
+    <p class="subtitle">Organize suas tarefas com estilo</p>
+    <div class="stats" *ngIf="totalCount > 0">
+      <span class="stat-item">
+        <i class="icon">📋</i>
+        Total: {{ totalCount }}
+      </span>
+      <span class="stat-item">
+        <i class="icon">✅</i>
+        Completas: {{ completedCount }}
+      </span>
+      <span class="stat-item">
+        <i class="icon">⏳</i>
+        Restantes: {{ pendingCount }}
+      </span>
+    </div>
+  </header>
+
+  <form class="todo-form" (submit)="addTodo(); $event.preventDefault()">
+    <div class="input-group">
+      <input
+        [(ngModel)]="newTodo"
+        name="todo"
+        placeholder="O que precisa ser feito?"
+        class="todo-input"
+        maxlength="100"
+        required
+        (keydown)="onKeyDown($event)"
+      />
+      <button type="submit" class="add-btn" [disabled]="!newTodo.trim()">
+        <i class="icon">➕</i>
+        Adicionar
+      </button>
+    </div>
+  </form>
+
+  <div class="todos-section" *ngIf="todos.length > 0">
+    <div class="section-header">
+      <h3 class="section-title">Suas Tarefas</h3>
+      <div class="action-buttons">
+        <button
+          class="action-btn clear-completed"
+          (click)="clearCompleted()"
+          [disabled]="completedCount === 0"
+          title="Clear completed tasks"
+        >
+          <i class="icon">🧹</i>
+          Limpar Completadas
+        </button>
+        <button
+          class="action-btn clear-all"
+          (click)="clearAll()"
+          title="Clear all tasks"
+        >
+          <i class="icon">🗑️</i>
+          Limpar Tudo
+        </button>
+      </div>
+    </div>
+
+    <ul class="todo-list" [@listAnimation]="todos.length">
+      <li
+        *ngFor="let todo of todos; trackBy: trackByTodo"
+        class="todo-item"
+        [@fadeInOut]
+        [class.completed]="todo.completed"
+      >
+        <div class="todo-content" (click)="toggleTodo(todo.id)">
+          <div class="checkbox-wrapper">
+            <input type="checkbox" [checked]="todo.completed" readonly />
+            <span class="checkmark"></span>
+          </div>
+          <div class="todo-text">
+            <span class="title">{{ todo.title }}</span>
+            <span class="date">{{ formatDate(todo.createdAt) }}</span>
+          </div>
+        </div>
+        <button
+          class="delete-btn"
+          (click)="deleteTodo(todo.id)"
+          [attr.aria-label]="'Delete ' + todo.title"
+          title="Delete task"
+        >
+          <i class="icon">🗑️</i>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="empty-state" *ngIf="todos.length === 0">
+    <div class="empty-icon">📝</div>
+    <h3>Nenhuma tarefa ainda!</h3>
+    <p>Adicione sua primeira tarefa acima para começar a organizar sua vida.</p>
+    <div class="empty-suggestions">
+      <p>💡 <strong>Dicas rápidas:</strong></p>
+      <ul> 
+        <li>Pressione Enter para adicionar tarefas rapidamente</li>
+        <li>Clique nas tarefas para marcá-las como completas</li>
+        <li>Use o ícone de lixeira para deletar tarefas</li>
+        <li>Suas tarefas são automaticamente salvas</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="todo-footer" *ngIf="todos.length > 0">
+    <div class="progress-container">
+      <div class="progress-info">
+        <span class="progress-label">Progresso</span>
+        <span class="progress-percentage"
+          >{{ progressPercentage | number : "1.0-0" }}%</span
+        >
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+      </div>
+      <p class="progress-text">
+        {{ completedCount }} de {{ totalCount }} tarefas completas
+        <span
+          *ngIf="completedCount === totalCount && totalCount > 0"
+          class="celebration"
+          >🎉</span
+        >
+      </p>
+    </div>
+  </footer>
+</div>
